@@ -41,12 +41,15 @@ class Board extends React.Component {
         );
     }
 
-    render() {
-        const status = `Next player: ${this.nextMarker()}`;
+    gameStatusText() {
+        const winner = calculateWinner(this.state.squares);
+        return winner ? `Winner: ${winner}` : `Next player: ${this.nextMarker()}`;
+    }
 
+    render() {
         return (
             <div>
-                <div className="status">{status}</div>
+                <div className="status">{this.gameStatusText()}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
