@@ -11,51 +11,18 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true
-        };
-    }
-
-    nextMarker() {
-        return this.state.xIsNext ? 'X' : 'O';
-    }
-
-    handleClick(i) {
-        const squares = this.state.squares.slice();
-
-        // Do nothing for winners or if square is already taken
-        if (calculateWinner(squares) || squares[i]) {
-            return;
-        }
-
-        squares[i] = this.nextMarker();
-        this.setState({
-            squares: squares,
-            xIsNext: !this.state.xIsNext
-        });
-    }
-
     renderSquare(i) {
         return (
             <Square
-                value={this.state.squares[i]}
-                onClick={ ()  => this.handleClick(i) }
+                value={this.props.squares[i]}
+                onClick={()  => this.props.onClick(i)}
             />
         );
-    }
-
-    gameStatusText() {
-        const winner = calculateWinner(this.state.squares);
-        return winner ? `Winner: ${winner}` : `Next player: ${this.nextMarker()}`;
     }
 
     render() {
         return (
             <div>
-                <div className="status">{this.gameStatusText()}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
@@ -87,14 +54,49 @@ class Game extends React.Component {
         };
     }
 
+    nextMarker() {
+        return this.state.xIsNext ? 'X' : 'O';
+    }
+
+    get history() {
+        return this.state.history;
+    }
+
+    get current() {
+        return this.history[this.history.length - 1].squares;
+    }
+
+    statusText() {
+        const winner = calculateWinner(this.current);
+        return winner ? `Winner: ${winner}` : `Next player: ${this.nextMarker()}`;
+    }
+
+    handleClick(i) {
+        const squares = this.current.slice();
+
+        // Do nothing for winners or if square is already taken
+        if (calculateWinner(squares) || squares[i]) {
+            return;
+        }
+
+        squares[i] = this.nextMarker();
+        this.setState({
+            history: this.history.concat([{squares}]),
+            xIsNext: !this.state.xIsNext
+        });
+    }
+
     render() {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board />
+                    <Board 
+                        squares={this.current}
+                        onClick={(i) => this.handleClick(i)}
+                    />
                 </div>
                 <div className="game-info">
-                    <div>{/* status */}</div>
+                    <div>{ this.statusText() }</div>
                     <ol>{/* TODO */}</ol>
                 </div>
             </div>
